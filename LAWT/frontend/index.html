@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAWT - Linear Algebra with Transformers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LAWT - Linear Algebra with Transformers</h1>
+            <p class="subtitle">@wsgbxx/BUPT2025S3212</p>
+            
+            <!-- 使用说明下拉区域 -->
+            <div class="header-toggles">
+                <div class="usage-toggle" id="usageToggle">
+                    <span>使用说明</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="usage-toggle" id="futureToggle">
+                    <span>未来</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="usage-toggle" id="logToggle">
+                    <span>开发日志</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            <div class="usage-content" id="usageContent">
+                <div class="usage-item">
+                    <h4>LAWT模型计算</h4>
+                    <p>LAWT采用基于Transformer架构的深度学习模型进行矩阵运算。该方法依据Transformer在序列到序列任务中的成功经验，将矩阵元素转换为序列表示，通过自注意力机制和多层编码器-解码器结构，直接从训练数据中学习矩阵运算的内在规律。与传统公式计算不同，LAWT不依赖代数运算规则，而是通过神经网络学习和泛化，实现了端到端的矩阵计算推理。</p>
+                </div>
+                <div class="usage-item">
+                    <h4>计算性能说明</h4>
+                    <p>LAWT模型计算需要实时调用神经网络进行前向传播推理，因此初始计算时间相对较长。经过多次计算后，系统的CPU缓存机制开始发挥作用，Python解释器和NumPy的JIT编译优化也会逐步生效，后续计算的响应时间会显著缩短。这是深度学习模型计算的正常现象。</p>
+                </div>
+                <div class="usage-item">
+                    <h4>NumPy传统计算</h4>
+                    <p>NumPy计算模式采用基于线性代数理论的经典算法实现，通过BLAS和LAPACK库进行高效数值计算。系统支持将计算结果智能格式化为数学表达式，包括整数、分数（如1/2、3/4）和根号（如√2、2√3）等，提升结果的可读性和数学美感。</p>
+                </div>
+                <div class="usage-item">
+                    <h4>反馈与建议</h4>
+                    <p>本项目为基于Transformer的矩阵计算实验平台，欢迎在评论区分享您的使用体验、问题反馈和改进建议。您的意见将帮助我们持续优化系统性能和用户体验。</p>
+                </div>
+            </div>
+            
+            <!-- 未来内容 -->
+            <div class="usage-content" id="futureContent">
+                <div class="usage-item">
+                    <h4>关于本项目</h4>
+                    <p>hello，这里有几条补充信息</p>
+                    <ol style="margin-left: 20px; margin-top: 10px; line-height: 2;">
+                        <li>AI目前距离取代程序员还很远，无论是在项目结构还是具体操作（亲身体会），目前为止程序员尚不至于失业。</li>
+                        <li>使用AI可以大大加强个人开发者的能力，每个idea都有实现的可能</li>
+                        <li>目前这个版本的LAWT计算模式确实会调用神经网络进行计算，但有不少概率回退到numpy计算，或许要等到来日我学明白Transformers再来解决了</li>
+                        <li>欢迎进一步与我交流，可以通过微信或qq 2037439013 了解详情，或者小红书 @老师好我叫苏同学。本项目的代码经过整理后也会上传到github上，欢迎关注我的GitHub账号 wsgbxx，点个小星星～</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- 开发日志内容 -->
+            <div class="usage-content" id="logContent">
+                <div class="usage-item">
+                    <h4>开发日志</h4>
+                    <p>现在是周天下午，距离我产生这个idea已经过去5天有余，终于可以说大致完工了。</p>
+                    <p>项目的灵感来源于周二偶然刷到的知乎问题：<strong>如何用机器学习实现矩阵求逆，有什么思路？</strong></p>
+                    
+                    <div style="margin-top: 15px;">
+                        <p><strong>问题描述：</strong></p>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li><strong>输入：</strong>一个矩阵</li>
+                            <li><strong>输出：</strong>一个布尔值，表示输入矩阵是否存在逆。一个矩阵，当输入矩阵存在逆时，为输入矩阵的逆。</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="margin-top: 15px;">问题的建设性的回答在23年10月，来自南开的答主使用AI代码进行了一次训练实验，结果很不准确，且仅仅对2位矩阵有效，随后指出：</p>
+                    <ol style="margin-left: 20px; line-height: 2;">
+                        <li>大模型对于矩阵求逆这类具有唯一正确解法的问题显然不适用</li>
+                        <li>大模型AI助手不能够写出完美的程序，debug的过程仍然需要人工把关（这点我后面才深有体会）</li>
+                    </ol>
+                    
+                    <p style="margin-top: 15px;">更进一步，有大佬在评论区指出，"关键在于'求逆不是Lipschitz连续'，这样的问题意味着着微小的输入扰动会导致巨大的输出波动，这就要求模型的参数必须特别精确，而不能是大差不差，也就是说在整个模型参数的变化空间中可能只有一个地方是可接受的解，甚至是离这个解非常近的一组模型参数都是完全不可接受的。想象一下损失函数关于模型参数的landscape图，首先是这个landscape会非常崎岖，而且只有一个地方是可以接受的，这个要求非常苛刻，其次是这个landscape的梯度对模型完全不能起到指导作用，模型的下一次的探索近乎于是盲目的。"</p>
+                    
+                    <p style="margin-top: 15px;">那么，这一过程真的不可实现吗？继续查找评论区，幸运的是有用户给出了篇2022年10月发表在TMLR上的论文《Linear algebra with transformers》（没想到还真有人有这个想法，学术界也太无聊了吧哈哈哈），其中详细列出了作者针对于矩阵计算模型训练的探索，对于15维以下的矩阵9种运算，最坏的情况下准确率也达到了85%，同时32页的论文里详细列出了多种对矩阵输入的编码方式，训练所用的解码器和编码器层数，以及训练用时的实验数据，显然具有可行性。</p>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                        <p><strong>项目前置条件：</strong></p>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>4060笔记本一台，轻薄本一台，均装有linux系统以及Anaconda中的pytorch环境若干</li>
+                            <li>编程小白一只（我），编程大佬五只</li>
+                        </ul>
+                        <p><strong>前置知识：</strong>c和cpp基础语法，python阅读难度不大，ai骨灰级使用者，杂七杂八cs知识若干</p>
+                        <p><strong>目标：</strong>实现由大模型推理为内核的10维以下可变矩阵计算器</p>
+                        <p><strong>那么，说干就干，项目正式开始：</strong></p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周二</h5>
+                        <p>这是周二中午的一点，安排项目规划：训练一个可用的10维以下矩阵模型计算器，9个模型分别训练，AI给出的训练时间为：H100预计总用时8到9小时，4060预计5到7天，因此选择云服务器在所难免</p>
+                        <p>下午正好没课，一直到睡觉，了解云算力平台，从算力云到阿里云，最后选择了性价比最高的autoDL 4090显卡，预算150元，进行部署。</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周三</h5>
+                        <p><strong>上午：</strong>部署成功，晋升一品丹道师，学习实例和镜像选择，版本兼容问题等等</p>
+                        <p><strong>中午1点：</strong>根据论文方法，正式开始第一次炼丹（训练模型），看着进度条一点点前进，loss一点点减小，成就感满满滴。</p>
+                        <p><strong>晚上：</strong>第一次炼丹完成，经过测试，全部失败（准确度0%），经过检查，发现AI在训练代码中使用了最新的模型训练方法Decoder-only，很高效但是与22年论文中使用的encoder and decoder方法冲突了，倘若采用论文中的训练模式即使是4090，也需要7天，这个成本不是穷逼大学牲可以接受的。这也是第一次被AI坑了。</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周四</h5>
+                        <p><strong>上午：</strong>进入论文对应的代码仓库（www.github.com/facebookresearch/LAWT），决定直接采用其中的预模型和相关src文件进行复现，并决定把计算器部署在云服务器，实现点击链接就可以访问使用，从而从大作业文件形式到更泛用的网页形式</p>
+                        <p><strong>下午：</strong>发现DeepSeek以及豆包的代码局限渐渐出现，换用通义千问3MAX付费模型（充值了10块钱，甚至还收到了阿里云客服的电话哈哈哈），一整天基本都在复制粘贴，但是总是调不好，本地服务无法使用。</p>
+                        <p><strong>晚上：</strong>对话式大模型已经捉襟见肘了，决定使用更强力AI IDE---九品器灵：cursor。很可惜cursor不让国内用户注册，为此动用了一系列魔法，拿下了7天体验券。</p>
+                        <p style="margin-top: 10px; padding: 10px; background: #fffacd; border-left: 4px solid #ffd700; border-radius: 4px;">第一次使用cursor果然效果非常惊艳，不亚于高中的时候第一次使用上DeepSeek（大概在爆火的半个月前），自动接管命令行，修改代码文件，兼容vscode模式，可联网访问github等等功能无比强大，一个小时左右就成功开发了第一版前端页面，登录进自己开发的网址，看到计算器页面出现时，感觉一切都有了意义。</p>
+                        <p style="margin-top: 10px; padding: 10px; background: #ffe4e1; border-left: 4px solid #ff6b6b; border-radius: 4px;">这天晚上小插曲：小红书刷到了北邮学长大三上拿到青云计划，深受打击：从没想过自己能够到青云的bar（即使读博），更不敢想本科就可以进入。有些人大一就可以手撕字节hard，有些人却还对着ai写的代码无能狂怒，不禁怅然若失，唉</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周五</h5>
+                        <p><strong>上午：</strong>连接模型，开发功能，测试。</p>
+                        <p><strong>下午：</strong>计导和班会课，不得不离开我心爱的项目，重拾数据结构</p>
+                        <p><strong>晚上：</strong>基本收工，测试网页链接能否使用。</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周六</h5>
+                        <p><strong>上午到中午：</strong>最终测试一直到中午一点，舍友提出了一些改进建议，于是添加一些前端动画（第二版），优化服务器，产生了最理想版本，随后删除本地和云服务器缓存等历史文件。</p>
+                        <p style="margin-top: 10px; padding: 10px; background: #ffe4e1; border-left: 4px solid #ff6b6b; border-radius: 4px;"><strong>然后噩梦就发生了</strong>，cursor删除历史文件时动了屎山，导致模型计算自动回退到numpy结果，进一步检查发现模型解码错误，字典错误。反复修改，没有任何办法回退到之前的屎山（血泪教训：代码一定要及时上传到git）</p>
+                        <p><strong>晚上：</strong>反复修改，重开，上传，测试，全部宣告失败，且在这一过程中渐渐对ai自动代码生成怯魅，即使反复提醒，ai总是莫名进入死循环。唉。</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">周日</h5>
+                        <p><strong>上午：</strong>确实没想过最终做到了这个地步，今天必须结项。于是全部重来，从头开始建前端页面和模型调用，从头开始测试，并且加入了评论，用户数量显示等辅助功能，最终做出来大家看到的这个版本，可以供大家访问。</p>
+                        <p><strong>晚上：</strong>写日志留念一下啦～</p>
+                        <p style="text-align: right; margin-top: 20px; color: #888; font-style: italic;">10.26 夜</p>
+                    </div>
+                    
+                    <!-- 图片展示 -->
+                    <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <img src="/1.jpg" alt="项目截图1" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: cover;">
+                        <img src="/2.jpg" alt="项目截图2" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: cover;">
+                        <img src="/3.jpg" alt="项目截图3" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: cover;">
+                        <img src="/4.jpg" alt="项目截图4" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 操作选择区域 -->
+            <div class="operation-section">
+                <h2>选择计算操作</h2>
+                <div class="operation-buttons">
+                    <button class="op-btn active" data-operation="transpose">矩阵转置</button>
+                    <button class="op-btn" data-operation="add">矩阵加法</button>
+                    <button class="op-btn" data-operation="multiply">矩阵乘法</button>
+                    <button class="op-btn" data-operation="inverse">矩阵求逆</button>
+                    <button class="op-btn" data-operation="eigenvalues">特征值</button>
+                    <button class="op-btn" data-operation="eigenvectors">特征向量</button>
+                </div>
+            </div>
+
+            <!-- 矩阵输入区域 -->
+            <div class="matrix-section">
+                <div class="matrix-input-container">
+                    <h3>矩阵A</h3>
+                    <div class="matrix-controls">
+                        <label>行数: <input type="number" id="rowsA" min="1" max="10" value="3"></label>
+                        <label>列数: <input type="number" id="colsA" min="1" max="10" value="3"></label>
+                        <button id="generateA" class="btn-secondary">生成随机矩阵</button>
+                    </div>
+                    <div id="matrixA" class="matrix-input"></div>
+                </div>
+
+                <div class="matrix-input-container" id="matrixB-container" style="display: none;">
+                    <h3>矩阵B</h3>
+                    <div class="matrix-controls">
+                        <label>行数: <input type="number" id="rowsB" min="1" max="10" value="3"></label>
+                        <label>列数: <input type="number" id="colsB" min="1" max="10" value="3"></label>
+                        <button id="generateB" class="btn-secondary">生成随机矩阵</button>
+                    </div>
+                    <div id="matrixB" class="matrix-input"></div>
+                </div>
+            </div>
+
+            <!-- 计算控制区域 -->
+            <div class="compute-section">
+                <div class="compute-controls">
+                    <button id="computeLAWT" class="btn-primary">使用LAWT模型计算</button>
+                    <button id="computeNumpy" class="btn-secondary">使用NumPy计算</button>
+                </div>
+                <div class="model-status">
+                    <span id="modelStatus" class="status-indicator">检查模型状态...</span>
+                </div>
+            </div>
+
+            <!-- 结果显示区域 -->
+            <div class="result-section">
+                <h3>计算结果</h3>
+                <div id="resultContainer" class="result-container">
+                    <div class="result-placeholder">
+                        <p>请选择操作并输入矩阵，然后点击计算按钮</p>
+                    </div>
+                </div>
+                
+                <!-- LAWT准确度对比信息 -->
+                <div id="accuracyComparison" class="accuracy-comparison" style="display: none;">
+                    <h4>准确度对比</h4>
+                    <div class="accuracy-info">
+                        <div class="accuracy-item">
+                            <span class="label">LAWT准确度:</span>
+                            <span id="lawtAccuracy" class="value">--</span>
+                        </div>
+                        <div class="accuracy-item">
+                            <span class="label">计算用时:</span>
+                            <span id="computationTime" class="value">--</span>
+                        </div>
+                        <div class="accuracy-item">
+                            <span class="label">与NumPy对比:</span>
+                            <span id="numpyComparison" class="value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 模型详细信息 -->
+                <div id="modelDetails" class="model-details" style="display: none;">
+                    <h4>模型详细信息</h4>
+                    <div class="model-info">
+                        <div class="model-item">
+                            <span class="label">模型架构:</span>
+                            <span id="modelArchitecture" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">编码器层数:</span>
+                            <span id="encoderLayers" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">解码器层数:</span>
+                            <span id="decoderLayers" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">注意力头数:</span>
+                            <span id="attentionHeads" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">嵌入维度:</span>
+                            <span id="embeddingDim" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">训练轮数:</span>
+                            <span id="trainingEpochs" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">优化器:</span>
+                            <span id="optimizer" class="value">--</span>
+                        </div>
+                        <div class="model-item">
+                            <span class="label">学习率:</span>
+                            <span id="learningRate" class="value">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计算历史 -->
+            <div class="history-section">
+                <h3>计算历史</h3>
+                <div id="historyContainer" class="history-container">
+                    <p class="no-history">暂无计算历史</p>
+                </div>
+                <button id="clearHistory" class="btn-secondary">清空历史</button>
+            </div>
+            
+            <!-- 用户评论区域 -->
+            <div class="comments-section">
+                <h3>用户评论</h3>
+                <div class="comment-input">
+                    <textarea id="commentInput" placeholder="请输入您的评论（最多100字）" maxlength="100"></textarea>
+                    <div class="comment-controls">
+                        <span id="charCount" class="char-count">0/100</span>
+                        <button id="submitComment" class="btn-primary">提交评论</button>
+                    </div>
+                </div>
+                <div id="commentsDisplay" class="comments-display">
+                    <p class="no-comments">暂无评论</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="user-stats">
+                    <span id="onlineUsers" class="stat-item">在线用户: <span class="stat-value">--</span></span>
+                    <span id="totalUsers" class="stat-item">总用户数: <span class="stat-value">--</span></span>
+                    <span id="popularOperation" class="stat-item">热门操作: <span class="stat-value">--</span></span>
+                </div>
+                <p>&copy; 2024 LAWT Project - Linear Algebra with Transformers</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>正在计算中...</p>
+    </div>
+
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>错误</h3>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <script src="script.js?v=20251026"></script>
+</body>
+</html>

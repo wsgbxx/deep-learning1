@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分数输入测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .input-test {
+            margin: 10px 0;
+        }
+        .input-test input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 分数输入问题测试页面</h1>
+    
+    <div class="test-section">
+        <h2>📋 预设测试用例</h2>
+        <button class="test-button" onclick="testCase('1/2', 'transpose')">测试: 1/2 转置</button>
+        <button class="test-button" onclick="testCase('1/2', 'add', '1/2')">测试: 1/2 + 1/2</button>
+        <button class="test-button" onclick="testCase('1/2', 'multiply', '2')">测试: 1/2 × 2</button>
+        <button class="test-button" onclick="testCase('1/2', 'inverse')">测试: 1/2 求逆</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 自定义测试</h2>
+        <div class="input-test">
+            <label>矩阵A: </label>
+            <input type="text" id="matrixA" placeholder="1/2" value="1/2">
+        </div>
+        <div class="input-test">
+            <label>操作: </label>
+            <select id="operation">
+                <option value="transpose">转置</option>
+                <option value="add">加法</option>
+                <option value="multiply">乘法</option>
+                <option value="inverse">求逆</option>
+            </select>
+        </div>
+        <div class="input-test">
+            <label>矩阵B: </label>
+            <input type="text" id="matrixB" placeholder="1/2" value="1/2">
+        </div>
+        <button class="test-button" onclick="customTest()">执行测试</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 测试结果</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function testCase(matrixA, operation, matrixB = null) {
+            const data = {
+                operation: operation,
+                matrixA: [[matrixA]],
+                method: 'numpy'
+            };
+            
+            if (matrixB !== null) {
+                data.matrixB = [[matrixB]];
+            }
+            
+            executeTest(data, `测试: ${matrixA} ${operation} ${matrixB ? matrixB : ''}`);
+        }
+        
+        function customTest() {
+            const matrixA = document.getElementById('matrixA').value;
+            const operation = document.getElementById('operation').value;
+            const matrixB = document.getElementById('matrixB').value;
+            
+            const data = {
+                operation: operation,
+                matrixA: [[matrixA]],
+                method: 'numpy'
+            };
+            
+            if (matrixB && matrixB.trim() !== '') {
+                data.matrixB = [[matrixB]];
+            }
+            
+            executeTest(data, `自定义测试: ${matrixA} ${operation} ${matrixB ? matrixB : ''}`);
+        }
+        
+        function executeTest(data, testName) {
+            const resultsDiv = document.getElementById('results');
+            
+            // 显示测试开始
+            const testDiv = document.createElement('div');
+            testDiv.className = 'result';
+            testDiv.innerHTML = `
+                <strong>${testName}</strong><br>
+                <small>请求数据: ${JSON.stringify(data)}</small><br>
+                <span id="status-${Date.now()}">⏳ 测试中...</span>
+            `;
+            resultsDiv.appendChild(testDiv);
+            
+            // 发送请求
+            fetch('/api/compute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                const statusSpan = document.getElementById(`status-${Date.now()}`);
+                if (statusSpan) {
+                    statusSpan.innerHTML = `
+                        <strong>✅ 测试完成</strong><br>
+                        响应状态: 200<br>
+                        结果: ${JSON.stringify(result.result)}<br>
+                        <small>完整响应: ${JSON.stringify(result, null, 2)}</small>
+                    `;
+                    
+                    // 检查是否包含0
+                    const resultStr = JSON.stringify(result.result);
+                    if (resultStr.includes('0') && !resultStr.includes('1/2')) {
+                        statusSpan.innerHTML += '<br><span style="color: red;">⚠️ 警告: 结果包含0!</span>';
+                    }
+                }
+            })
+            .catch(error => {
+                const statusSpan = document.getElementById(`status-${Date.now()}`);
+                if (statusSpan) {
+                    statusSpan.innerHTML = `
+                        <strong>❌ 测试失败</strong><br>
+                        错误: ${error.message}
+                    `;
+                    testDiv.className = 'result error';
+                }
+            });
+        }
+        
+        // 页面加载时自动测试
+        window.onload = function() {
+            testCase('1/2', 'transpose');
+        };
+    </script>
+</body>
+</html>
